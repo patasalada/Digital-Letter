@@ -28,10 +28,6 @@ export default async function Home({
           <h1 className="text-4xl md:text-5xl leading-tight">
             Write something worth waiting for.
           </h1>
-          <p className="text-muted text-lg leading-relaxed">
-            A slow-tech postmaster. Letters travel at the speed of real mail —
-            three to seven days, sometimes longer. No edits after sending.
-          </p>
         </header>
 
         <div className="border-t border-rule pt-10 space-y-4">
@@ -43,10 +39,6 @@ export default async function Home({
               Sign in with Google
             </button>
           </form>
-          <p className="text-xs text-muted">
-            We use Google only to verify who you are. Nothing is posted on your
-            behalf.
-          </p>
           {error && (
             <p className="text-xs text-red-700 pt-2">
               Sign-in failed. Please try again.
