@@ -28,7 +28,7 @@ export default async function Home({
           <h1 className="text-4xl md:text-5xl leading-tight">
             Write something worth waiting for.
           </h1>
-          <p className="text-muted text-base">
+          <p className="text-foreground text-lg">
             To someone worth writing to.
           </p>
         </header>
