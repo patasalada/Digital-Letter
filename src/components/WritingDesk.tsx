@@ -176,7 +176,6 @@ export default function WritingDesk({ userId }: Props) {
     <div className="max-w-2xl mx-auto w-full space-y-8 py-12 px-6">
       <div className="space-y-1">
         <p className="text-xs uppercase tracking-[0.3em] text-muted">The writing desk</p>
-        <p className="text-xs text-muted">Once sent, your letter cannot be edited or recalled.</p>
       </div>
 
       <div className="space-y-2">

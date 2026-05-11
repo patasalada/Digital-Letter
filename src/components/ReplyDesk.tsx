@@ -166,7 +166,6 @@ export default function ReplyDesk({
         <p className="text-xs uppercase tracking-[0.3em] text-muted">
           {originalSenderName ? `Reply to ${originalSenderName}` : "Send a reply"}
         </p>
-        <p className="text-xs text-muted">No account needed. Once sent, your letter cannot be recalled.</p>
       </div>
 
       <div className="space-y-2">
