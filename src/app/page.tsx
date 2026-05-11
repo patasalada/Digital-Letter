@@ -23,7 +23,7 @@ export default async function Home({
       <div className="max-w-xl w-full space-y-12 text-center">
         <header className="space-y-4">
           <p className="text-xs uppercase tracking-[0.3em] text-muted">
-            The Courier
+            Digital Letter
           </p>
           <h1 className="text-4xl md:text-5xl leading-tight">
             Write something worth waiting for.

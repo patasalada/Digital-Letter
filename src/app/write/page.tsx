@@ -24,7 +24,7 @@ export default async function WritePage() {
   return (
     <div className="min-h-full flex flex-col">
       <header className="flex justify-between items-center px-6 py-4 border-b border-rule">
-        <p className="text-xs uppercase tracking-[0.3em] text-muted">The Courier</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-muted">Digital Letter</p>
         <form action={signOut}>
           <button
             type="submit"

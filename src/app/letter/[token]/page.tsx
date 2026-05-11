@@ -57,7 +57,7 @@ export default async function LetterPage({
     <div className="min-h-full flex flex-col">
       <header className="px-6 py-4 border-b border-rule">
         <p className="text-xs uppercase tracking-[0.3em] text-muted">
-          The Courier
+          Digital Letter
         </p>
       </header>
       <main className="flex-1">
