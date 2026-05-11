@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Postmark from "./Postmark";
 
 interface LetterMeta {
   recipient_name: string | null;
@@ -133,17 +134,28 @@ export default function TransitLog({ letter, token }: Props) {
     },
   ];
 
+  const postmarkDate = dispatch.toLocaleDateString("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+  }).toUpperCase();
+
   return (
     <div className="space-y-10">
-      <div className="space-y-1">
-        <h1 className="text-2xl">
-          {letter.recipient_name ? `A letter to ${letter.recipient_name}` : "A letter in transit"}
-        </h1>
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl">
+            {letter.recipient_name ? `A letter to ${letter.recipient_name}` : "A letter in transit"}
+          </h1>
+          {letter.origin_label && (
+            <p className="text-sm text-muted">
+              From {letter.origin_label}
+              {letter.distance_km ? ` — ${Math.round(letter.distance_km).toLocaleString()} km` : ""}
+            </p>
+          )}
+        </div>
         {letter.origin_label && (
-          <p className="text-sm text-muted">
-            From {letter.origin_label}
-            {letter.distance_km ? ` — ${Math.round(letter.distance_km).toLocaleString()} km` : ""}
-          </p>
+          <div className="shrink-0">
+            <Postmark city={letter.origin_label} date={postmarkDate} />
+          </div>
         )}
       </div>
 

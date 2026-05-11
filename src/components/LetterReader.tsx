@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Postmark from "./Postmark";
 
 interface Props {
   letter: {
@@ -110,18 +111,30 @@ export default function LetterReader({
   // page === "letter"
   return (
     <div className="max-w-2xl mx-auto px-6 py-12 space-y-10">
-      <div className="space-y-2 border-b border-rule pb-6">
-        <p className="text-xs uppercase tracking-[0.3em] text-muted">
-          {dispatchDate}
-          {letter.origin_label ? ` — ${letter.origin_label}` : ""}
-        </p>
-        {letter.recipient_name && (
-          <p
-            className="text-2xl"
-            style={{ fontFamily: "var(--font-handwriting)" }}
-          >
-            Dear {letter.recipient_name},
+      <div className="flex items-start justify-between gap-4 border-b border-rule pb-6">
+        <div className="space-y-2">
+          <p className="text-xs uppercase tracking-[0.3em] text-muted">
+            {dispatchDate}
+            {letter.origin_label ? ` — ${letter.origin_label}` : ""}
           </p>
+          {letter.recipient_name && (
+            <p
+              className="text-2xl"
+              style={{ fontFamily: "var(--font-handwriting)" }}
+            >
+              Dear {letter.recipient_name},
+            </p>
+          )}
+        </div>
+        {letter.origin_label && (
+          <div className="shrink-0">
+            <Postmark
+              city={letter.origin_label}
+              date={new Date(letter.dispatched_at).toLocaleDateString("en-US", {
+                month: "short", day: "numeric", year: "numeric",
+              }).toUpperCase()}
+            />
+          </div>
         )}
       </div>
 
