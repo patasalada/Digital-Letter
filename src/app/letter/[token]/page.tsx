@@ -67,6 +67,7 @@ export default async function LetterPage({
             dispatched_at: letter.dispatched_at,
             origin_label: letter.origin_label,
             recipient_name: letter.recipient_name,
+            weather_description: letter.weather_description ?? null,
           }}
           audioUrl={audioSignedUrl}
           images={images}

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { haversineKm, computeUnlockTimestamp, formatTransitDuration } from "@/lib/transit";
 import { sendDispatchEmail } from "@/lib/resend";
+import { fetchWeather } from "@/lib/weather";
 
 // Geocode a city/country string to lat/lng using Nominatim
 async function geocodeLabel(label: string): Promise<{ lat: number; lng: number } | null> {
@@ -57,6 +58,12 @@ export async function POST(request: NextRequest) {
   const unlockTimestamp = computeUnlockTimestamp(distanceKm);
   const transitDays = formatTransitDuration(distanceKm);
 
+  // Fetch weather at origin at time of writing
+  const weatherDescription =
+    !isNaN(originLat) && !isNaN(originLng)
+      ? await fetchWeather(originLat, originLng)
+      : null;
+
   // Upload audio if present
   let audioUrl: string | null = null;
   const audioFile = formData.get("audio") as File | null;
@@ -85,6 +92,7 @@ export async function POST(request: NextRequest) {
       destination_lng: destLng,
       distance_km: distanceKm,
       unlock_timestamp: unlockTimestamp.toISOString(),
+      weather_description: weatherDescription,
     })
     .select("id, access_token")
     .single();

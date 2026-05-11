@@ -9,6 +9,7 @@ interface Props {
     dispatched_at: string;
     origin_label: string | null;
     recipient_name: string | null;
+    weather_description: string | null;
   };
   audioUrl: string | null;
   images: { id: string; signedUrl: string | null; caption: string }[];
@@ -116,6 +117,7 @@ export default function LetterReader({
           <p className="text-xs uppercase tracking-[0.3em] text-muted">
             {dispatchDate}
             {letter.origin_label ? ` — ${letter.origin_label}` : ""}
+            {letter.weather_description ? ` · ${letter.weather_description}` : ""}
           </p>
           {letter.recipient_name && (
             <p
