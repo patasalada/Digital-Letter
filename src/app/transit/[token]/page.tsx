@@ -24,7 +24,7 @@ export default async function TransitPage({
     <div className="min-h-full flex flex-col">
       <header className="px-6 py-4 border-b border-rule">
         <p className="text-xs uppercase tracking-[0.3em] text-muted">
-          Digital Letter — Transit Log
+          The Courier — Transit Log
         </p>
       </header>
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-12">
