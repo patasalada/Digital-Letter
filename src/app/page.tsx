@@ -28,6 +28,9 @@ export default async function Home({
           <h1 className="text-4xl md:text-5xl leading-tight">
             Write something worth waiting for.
           </h1>
+          <p className="text-muted text-base">
+            To someone worth writing to.
+          </p>
         </header>
 
         <div className="border-t border-rule pt-10 space-y-4">
