@@ -15,7 +15,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Digital Letter",
+  title: "The Courier",
   description: "A slow-tech postmaster. Write something worth waiting for.",
 };
 

@@ -7,6 +7,7 @@ interface LetterMeta {
   recipient_name: string | null;
   origin_label: string | null;
   destination_label: string | null;
+  destination_lat: number | null;
   distance_km: number | null;
   dispatched_at: string;
   unlock_timestamp: string;
@@ -97,6 +98,31 @@ export default function TransitLog({ letter, token }: Props) {
   const [quote] = useState(
     () => QUOTES[Math.floor(Math.random() * QUOTES.length)],
   );
+
+  // Request recipient location once on first visit if destination not yet set
+  const destinationUnset = !letter.destination_label && (letter.destination_lat === 0 || letter.destination_lat === null);
+  useEffect(() => {
+    if (!destinationUnset || isUnlocked) return;
+    navigator.geolocation?.getCurrentPosition(async (pos) => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      // Reverse geocode
+      try {
+        const geo = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+          { headers: { "Accept-Language": "en" } }
+        );
+        const data = await geo.json();
+        const a = data.address ?? {};
+        const label = [a.city || a.town || a.village || a.county, a.country]
+          .filter(Boolean).join(", ");
+        await fetch(`/api/letters/${token}/destination`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lat, lng, label }),
+        });
+      } catch { /* silent fail */ }
+    });
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSkip() {
     setSkipState("quote");

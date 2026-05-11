@@ -13,7 +13,7 @@ export default async function TransitPage({
   const { data: letter } = await service
     .from("letters")
     .select(
-      "recipient_name, origin_label, destination_label, distance_km, dispatched_at, unlock_timestamp, delivered_at, opened_at, status, access_token",
+      "recipient_name, origin_label, destination_label, destination_lat, distance_km, dispatched_at, unlock_timestamp, delivered_at, opened_at, status, access_token",
     )
     .eq("access_token", token)
     .single();
@@ -24,7 +24,7 @@ export default async function TransitPage({
     <div className="min-h-full flex flex-col">
       <header className="px-6 py-4 border-b border-rule">
         <p className="text-xs uppercase tracking-[0.3em] text-muted">
-          Digital Letter — Transit Log
+          The Courier — Transit Log
         </p>
       </header>
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-12">
