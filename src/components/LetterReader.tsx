@@ -38,7 +38,12 @@ export default function LetterReader({
               You have a letter
             </p>
             {letter.recipient_name && (
-              <p className="text-2xl">For {letter.recipient_name}</p>
+              <p
+                className="text-4xl"
+                style={{ fontFamily: "var(--font-handwriting)" }}
+              >
+                For {letter.recipient_name}
+              </p>
             )}
             <p className="text-sm text-muted">
               Written {dispatchDate}
@@ -52,7 +57,6 @@ export default function LetterReader({
           >
             <div className="text-8xl">✉</div>
           </div>
-
         </div>
       </div>
     );
@@ -106,13 +110,18 @@ export default function LetterReader({
   // page === "letter"
   return (
     <div className="max-w-2xl mx-auto px-6 py-12 space-y-10">
-      <div className="space-y-1 border-b border-rule pb-6">
+      <div className="space-y-2 border-b border-rule pb-6">
         <p className="text-xs uppercase tracking-[0.3em] text-muted">
           {dispatchDate}
           {letter.origin_label ? ` — ${letter.origin_label}` : ""}
         </p>
         {letter.recipient_name && (
-          <p className="text-lg">Dear {letter.recipient_name},</p>
+          <p
+            className="text-2xl"
+            style={{ fontFamily: "var(--font-handwriting)" }}
+          >
+            Dear {letter.recipient_name},
+          </p>
         )}
       </div>
 
@@ -125,7 +134,10 @@ export default function LetterReader({
         </div>
       )}
 
-      <div className="leading-relaxed text-base whitespace-pre-wrap">
+      <div
+        className="leading-relaxed text-xl whitespace-pre-wrap"
+        style={{ fontFamily: "var(--font-handwriting)", lineHeight: "2" }}
+      >
         {letter.body_text}
       </div>
 
