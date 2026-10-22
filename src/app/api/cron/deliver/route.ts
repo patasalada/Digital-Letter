@@ -1,17 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { sendDeliveryEmail } from "@/lib/resend";
 
-// Vercel Cron calls this with a secret header. Check it in production.
-export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (
-    process.env.NODE_ENV === "production" &&
-    authHeader !== `Bearer ${process.env.CRON_SECRET}`
-  ) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+// Public on purpose: it only delivers letters already past unlock, once each.
+export async function GET() {
   const service = createServiceClient();
 
   // Find all in-transit letters whose unlock time has passed
