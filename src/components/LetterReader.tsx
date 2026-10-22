@@ -40,12 +40,7 @@ export default function LetterReader({
               You have a letter
             </p>
             {letter.recipient_name && (
-              <p
-                className="text-4xl"
-                style={{ fontFamily: "var(--font-handwriting)" }}
-              >
-                For {letter.recipient_name}
-              </p>
+              <p className="text-2xl">For {letter.recipient_name}</p>
             )}
             <p className="text-sm text-muted">
               Written {dispatchDate}
@@ -120,12 +115,7 @@ export default function LetterReader({
             {letter.weather_description ? ` · ${letter.weather_description}` : ""}
           </p>
           {letter.recipient_name && (
-            <p
-              className="text-2xl"
-              style={{ fontFamily: "var(--font-handwriting)" }}
-            >
-              Dear {letter.recipient_name},
-            </p>
+            <p className="text-lg">Dear {letter.recipient_name},</p>
           )}
         </div>
         {letter.origin_label && (
@@ -149,10 +139,7 @@ export default function LetterReader({
         </div>
       )}
 
-      <div
-        className="leading-relaxed text-xl whitespace-pre-wrap"
-        style={{ fontFamily: "var(--font-handwriting)", lineHeight: "2" }}
-      >
+      <div className="leading-relaxed text-base whitespace-pre-wrap">
         {letter.body_text}
       </div>
 
