@@ -19,6 +19,27 @@ interface Props {
 
 type Page = "envelope" | "letter" | "photos";
 
+// Trailing punctuation is excluded so "see https://x.com." links correctly.
+const URL_PATTERN = /(https?:\/\/[^\s]*[^\s.,;:!?)\]'"])/g;
+
+function linkify(text: string) {
+  return text.split(URL_PATTERN).map((part, i) =>
+    i % 2 === 1 ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline break-all"
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    ),
+  );
+}
+
 export default function LetterReader({
   letter,
   audioUrl,
@@ -142,7 +163,7 @@ export default function LetterReader({
       )}
 
       <div className="leading-relaxed text-base whitespace-pre-wrap">
-        {letter.body_text}
+        {linkify(letter.body_text)}
       </div>
 
       {videoUrl && (
