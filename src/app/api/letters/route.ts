@@ -30,11 +30,14 @@ export async function POST(request: NextRequest) {
   const recipientName = formData.get("recipient_name")?.toString().trim() || null;
   const imageCount = parseInt(formData.get("image_count")?.toString() || "0");
   const videoPath = formData.get("video_path")?.toString() || null;
+  const audioPath = formData.get("audio_path")?.toString() || null;
 
   if (!bodyText) return NextResponse.json({ error: "Body is required" }, { status: 400 });
   if (!recipientEmail) return NextResponse.json({ error: "Recipient email is required" }, { status: 400 });
-  if (videoPath && !videoPath.startsWith(`${user.id}/`)) {
-    return NextResponse.json({ error: "Invalid video" }, { status: 400 });
+  for (const path of [videoPath, audioPath]) {
+    if (path && !path.startsWith(`${user.id}/`)) {
+      return NextResponse.json({ error: "Invalid attachment" }, { status: 400 });
+    }
   }
 
   const service = createServiceClient();
@@ -68,18 +71,6 @@ export async function POST(request: NextRequest) {
       ? await fetchWeather(originLat, originLng)
       : null;
 
-  // Upload audio if present
-  let audioUrl: string | null = null;
-  const audioFile = formData.get("audio") as File | null;
-  if (audioFile && audioFile.size > 0) {
-    const ext = audioFile.name.endsWith(".mp4") ? "mp4" : "webm";
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error: uploadError } = await service.storage
-      .from("letter-audio")
-      .upload(path, audioFile, { contentType: audioFile.type });
-    if (!uploadError) audioUrl = path;
-  }
-
   // Insert letter
   const { data: letter, error: insertError } = await service
     .from("letters")
@@ -88,7 +79,7 @@ export async function POST(request: NextRequest) {
       recipient_email: recipientEmail,
       recipient_name: recipientName,
       body_text: bodyText,
-      audio_url: audioUrl,
+      audio_url: audioPath,
       video_url: videoPath,
       origin_lat: !isNaN(originLat) ? originLat : null,
       origin_lng: !isNaN(originLng) ? originLng : null,

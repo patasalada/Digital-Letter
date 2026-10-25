@@ -15,6 +15,25 @@ interface Props {
 
 type Step = "write" | "preview" | "sending" | "sent";
 
+async function uploadMedia(
+  kind: "audio" | "video",
+  file: Blob,
+  contentType: string,
+): Promise<string> {
+  const urlRes = await fetch("/api/media-upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind, contentType }),
+  });
+  const urlData = await urlRes.json();
+  if (!urlRes.ok) throw new Error(urlData.error || `${kind} upload failed`);
+  const { error } = await createClient()
+    .storage.from(kind === "video" ? "letter-video" : "letter-audio")
+    .uploadToSignedUrl(urlData.path, urlData.token, file, { contentType });
+  if (error) throw new Error(`Your ${kind} didn't upload. Try again.`);
+  return urlData.path;
+}
+
 export default function WritingDesk({ userId }: Props) {
   const [step, setStep] = useState<Step>("write");
   const [body, setBody] = useState("");
@@ -65,23 +84,16 @@ export default function WritingDesk({ userId }: Props) {
     setError("");
 
     try {
+      let audioPath: string | null = null;
+      if (audioBlob) {
+        setSendingNote("Uploading your audio…");
+        audioPath = await uploadMedia("audio", audioBlob, audioMime);
+      }
+
       let videoPath: string | null = null;
       if (video) {
         setSendingNote("Uploading your video. This can take a few minutes, so keep this tab open.");
-        const urlRes = await fetch("/api/video-upload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contentType: video.file.type }),
-        });
-        const urlData = await urlRes.json();
-        if (!urlRes.ok) throw new Error(urlData.error || "Video upload failed");
-        const { error: uploadError } = await createClient()
-          .storage.from("letter-video")
-          .uploadToSignedUrl(urlData.path, urlData.token, video.file, {
-            contentType: video.file.type,
-          });
-        if (uploadError) throw new Error("Video upload failed. Try again.");
-        videoPath = urlData.path;
+        videoPath = await uploadMedia("video", video.file, video.file.type);
       }
       setSendingNote("");
 
@@ -89,7 +101,7 @@ export default function WritingDesk({ userId }: Props) {
       formData.append("body_text", body);
       formData.append("recipient_email", recipientEmail);
       if (recipientName) formData.append("recipient_name", recipientName);
-      if (audioBlob) formData.append("audio", audioBlob, `audio.${audioMime.includes("mp4") ? "mp4" : "webm"}`);
+      if (audioPath) formData.append("audio_path", audioPath);
       images.forEach((img, i) => {
         formData.append(`image_${i}`, img.file);
         formData.append(`caption_${i}`, img.caption);
@@ -238,6 +250,7 @@ export default function WritingDesk({ userId }: Props) {
       />
 
       <AudioRecorder
+        allowUpload
         onRecorded={(blob, mime) => { setAudioBlob(blob); setAudioMime(mime); }}
         onCleared={() => { setAudioBlob(null); setAudioMime(""); }}
       />
