@@ -6,6 +6,7 @@ import ImageUploader, { type PendingImage } from "./ImageUploader";
 import VideoAttach, { type PendingVideo } from "./VideoAttach";
 import { getCurrentPosition, type GeoResult } from "@/lib/geo";
 import { createClient } from "@/lib/supabase/client";
+import { linkify } from "@/lib/linkify";
 import { haversineKm, formatTransitDuration } from "@/lib/transit";
 
 interface Props {
@@ -147,7 +148,7 @@ export default function WritingDesk({ userId }: Props) {
         </div>
 
         <div className="border-t border-rule pt-8">
-          <p className="whitespace-pre-wrap leading-relaxed">{body}</p>
+          <p className="whitespace-pre-wrap leading-relaxed">{linkify(body)}</p>
         </div>
 
         {audioBlob && (
