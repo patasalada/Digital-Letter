@@ -29,9 +29,13 @@ export async function POST(request: NextRequest) {
   const recipientEmail = formData.get("recipient_email")?.toString().trim();
   const recipientName = formData.get("recipient_name")?.toString().trim() || null;
   const imageCount = parseInt(formData.get("image_count")?.toString() || "0");
+  const videoPath = formData.get("video_path")?.toString() || null;
 
   if (!bodyText) return NextResponse.json({ error: "Body is required" }, { status: 400 });
   if (!recipientEmail) return NextResponse.json({ error: "Recipient email is required" }, { status: 400 });
+  if (videoPath && !videoPath.startsWith(`${user.id}/`)) {
+    return NextResponse.json({ error: "Invalid video" }, { status: 400 });
+  }
 
   const service = createServiceClient();
 
@@ -85,6 +89,7 @@ export async function POST(request: NextRequest) {
       recipient_name: recipientName,
       body_text: bodyText,
       audio_url: audioUrl,
+      video_url: videoPath,
       origin_lat: !isNaN(originLat) ? originLat : null,
       origin_lng: !isNaN(originLng) ? originLng : null,
       origin_label: originLabel,

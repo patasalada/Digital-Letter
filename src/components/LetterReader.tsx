@@ -12,6 +12,7 @@ interface Props {
     weather_description: string | null;
   };
   audioUrl: string | null;
+  videoUrl: string | null;
   images: { id: string; signedUrl: string | null; caption: string }[];
   replyToken: string;
 }
@@ -21,6 +22,7 @@ type Page = "envelope" | "letter" | "photos";
 export default function LetterReader({
   letter,
   audioUrl,
+  videoUrl,
   images,
   replyToken,
 }: Props) {
@@ -142,6 +144,21 @@ export default function LetterReader({
       <div className="leading-relaxed text-base whitespace-pre-wrap">
         {letter.body_text}
       </div>
+
+      {videoUrl && (
+        <div className="border-t border-rule pt-6 space-y-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted">
+            Video
+          </p>
+          <video
+            controls
+            playsInline
+            preload="metadata"
+            src={videoUrl}
+            className="mx-auto max-w-full max-h-[80vh] border border-rule"
+          />
+        </div>
+      )}
 
       <div className="border-t border-rule pt-6 flex items-center justify-between">
         {images.length > 0 ? (

@@ -38,6 +38,15 @@ export default async function LetterPage({
     audioSignedUrl = data?.signedUrl ?? null;
   }
 
+  // Longer expiry so a paused video still plays when they come back to it.
+  let videoSignedUrl: string | null = null;
+  if (letter.video_url) {
+    const { data } = await service.storage
+      .from("letter-video")
+      .createSignedUrl(letter.video_url, 6 * 3600);
+    videoSignedUrl = data?.signedUrl ?? null;
+  }
+
   const images = await Promise.all(
     (letter.letter_images ?? [])
       .sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order)
@@ -70,6 +79,7 @@ export default async function LetterPage({
             weather_description: letter.weather_description ?? null,
           }}
           audioUrl={audioSignedUrl}
+          videoUrl={videoSignedUrl}
           images={images}
           replyToken={token}
         />

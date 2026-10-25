@@ -29,6 +29,7 @@ create table if not exists public.letters (
   -- Content
   body_text text not null,
   audio_url text,
+  video_url text,
 
   -- Geography
   origin_lat double precision,
@@ -139,6 +140,13 @@ on conflict (id) do nothing;
 
 insert into storage.buckets (id, name, public)
 values ('letter-images', 'letter-images', false)
+on conflict (id) do nothing;
+
+-- Videos upload from the browser via signed upload URLs issued by
+-- /api/video-upload, so no authenticated insert policy is needed.
+insert into storage.buckets (id, name, public, allowed_mime_types)
+values ('letter-video', 'letter-video', false,
+        array['video/mp4', 'video/quicktime', 'video/webm'])
 on conflict (id) do nothing;
 
 -- Authenticated users upload to a folder named after their user id.

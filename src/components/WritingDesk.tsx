@@ -3,7 +3,9 @@
 import { useState, useTransition } from "react";
 import AudioRecorder from "./AudioRecorder";
 import ImageUploader, { type PendingImage } from "./ImageUploader";
+import VideoAttach, { type PendingVideo } from "./VideoAttach";
 import { getCurrentPosition, type GeoResult } from "@/lib/geo";
+import { createClient } from "@/lib/supabase/client";
 import { haversineKm, formatTransitDuration } from "@/lib/transit";
 
 interface Props {
@@ -20,6 +22,8 @@ export default function WritingDesk({ userId }: Props) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioMime, setAudioMime] = useState<string>("");
   const [images, setImages] = useState<PendingImage[]>([]);
+  const [video, setVideo] = useState<PendingVideo | null>(null);
+  const [sendingNote, setSendingNote] = useState("");
   const [error, setError] = useState("");
   const [sentToken, setSentToken] = useState("");
   const [, startTransition] = useTransition();
@@ -59,23 +63,44 @@ export default function WritingDesk({ userId }: Props) {
     setStep("sending");
     setError("");
 
-    const formData = new FormData();
-    formData.append("body_text", body);
-    formData.append("recipient_email", recipientEmail);
-    if (recipientName) formData.append("recipient_name", recipientName);
-    if (audioBlob) formData.append("audio", audioBlob, `audio.${audioMime.includes("mp4") ? "mp4" : "webm"}`);
-    images.forEach((img, i) => {
-      formData.append(`image_${i}`, img.file);
-      formData.append(`caption_${i}`, img.caption);
-    });
-    formData.append("image_count", String(images.length));
-    if (origin) {
-      formData.append("origin_lat", String(origin.lat));
-      formData.append("origin_lng", String(origin.lng));
-      formData.append("origin_label", origin.label);
-    }
-
     try {
+      let videoPath: string | null = null;
+      if (video) {
+        setSendingNote("Uploading your video. This can take a few minutes, so keep this tab open.");
+        const urlRes = await fetch("/api/video-upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contentType: video.file.type }),
+        });
+        const urlData = await urlRes.json();
+        if (!urlRes.ok) throw new Error(urlData.error || "Video upload failed");
+        const { error: uploadError } = await createClient()
+          .storage.from("letter-video")
+          .uploadToSignedUrl(urlData.path, urlData.token, video.file, {
+            contentType: video.file.type,
+          });
+        if (uploadError) throw new Error("Video upload failed. Try again.");
+        videoPath = urlData.path;
+      }
+      setSendingNote("");
+
+      const formData = new FormData();
+      formData.append("body_text", body);
+      formData.append("recipient_email", recipientEmail);
+      if (recipientName) formData.append("recipient_name", recipientName);
+      if (audioBlob) formData.append("audio", audioBlob, `audio.${audioMime.includes("mp4") ? "mp4" : "webm"}`);
+      images.forEach((img, i) => {
+        formData.append(`image_${i}`, img.file);
+        formData.append(`caption_${i}`, img.caption);
+      });
+      formData.append("image_count", String(images.length));
+      if (origin) {
+        formData.append("origin_lat", String(origin.lat));
+        formData.append("origin_lng", String(origin.lng));
+        formData.append("origin_label", origin.label);
+      }
+      if (videoPath) formData.append("video_path", videoPath);
+
       const res = await fetch("/api/letters", {
         method: "POST",
         body: formData,
@@ -85,6 +110,7 @@ export default function WritingDesk({ userId }: Props) {
       setSentToken(data.access_token);
       setStep("sent");
     } catch (e) {
+      setSendingNote("");
       setError(e instanceof Error ? e.message : "Something went wrong.");
       setStep("write");
     }
@@ -131,6 +157,13 @@ export default function WritingDesk({ userId }: Props) {
           </div>
         )}
 
+        {video && (
+          <div className="border-t border-rule pt-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-muted mb-2">Video attached</p>
+            <video controls playsInline src={video.preview} className="max-w-full max-h-80 border border-rule" />
+          </div>
+        )}
+
         {images.length > 0 && (
           <div className="border-t border-rule pt-4">
             <p className="text-xs uppercase tracking-[0.2em] text-muted mb-3">{images.length} photo{images.length > 1 ? "s" : ""} attached</p>
@@ -166,7 +199,7 @@ export default function WritingDesk({ userId }: Props) {
   if (step === "sending") {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-muted text-sm">Sending your letter&hellip;</p>
+        <p className="text-muted text-sm">{sendingNote || "Sending your letter…"}</p>
       </div>
     );
   }
@@ -209,6 +242,8 @@ export default function WritingDesk({ userId }: Props) {
       />
 
       <ImageUploader images={images} onChange={setImages} />
+
+      <VideoAttach video={video} onChange={setVideo} />
 
       {error && <p className="text-sm text-red-700">{error}</p>}
 
