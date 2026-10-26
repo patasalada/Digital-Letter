@@ -16,6 +16,7 @@ interface Props {
   videoUrl: string | null;
   images: { id: string; signedUrl: string | null; caption: string }[];
   replyToken: string;
+  senderCopy?: boolean;
 }
 
 type Page = "envelope" | "letter" | "photos";
@@ -26,6 +27,7 @@ export default function LetterReader({
   videoUrl,
   images,
   replyToken,
+  senderCopy,
 }: Props) {
   const [page, setPage] = useState<Page>("envelope");
 
@@ -95,14 +97,16 @@ export default function LetterReader({
           )}
         </div>
 
-        <div className="border-t border-rule pt-8">
-          <a
-            href={`/reply/${replyToken}`}
-            className="text-sm border border-foreground px-6 py-3 hover:bg-foreground hover:text-background transition-colors inline-block"
-          >
-            Send a reply
-          </a>
-        </div>
+        {!senderCopy && (
+          <div className="border-t border-rule pt-8">
+            <a
+              href={`/reply/${replyToken}`}
+              className="text-sm border border-foreground px-6 py-3 hover:bg-foreground hover:text-background transition-colors inline-block"
+            >
+              Send a reply
+            </a>
+          </div>
+        )}
       </div>
     );
   }
@@ -172,12 +176,14 @@ export default function LetterReader({
         ) : (
           <span />
         )}
-        <a
-          href={`/reply/${replyToken}`}
-          className="text-sm border border-foreground px-6 py-3 hover:bg-foreground hover:text-background transition-colors inline-block"
-        >
-          Send a reply
-        </a>
+        {!senderCopy && (
+          <a
+            href={`/reply/${replyToken}`}
+            className="text-sm border border-foreground px-6 py-3 hover:bg-foreground hover:text-background transition-colors inline-block"
+          >
+            Send a reply
+          </a>
+        )}
       </div>
     </div>
   );

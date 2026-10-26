@@ -36,22 +36,31 @@ export default function SentLetters({ letters }: Props) {
           const status = statusLabel(letter);
 
           return (
-            <a
+            <div
               key={letter.id}
-              href={`/transit/${letter.access_token}`}
-              className="flex items-center justify-between py-3 border-b border-rule hover:opacity-60 transition-opacity group"
+              className="flex items-center justify-between py-3 border-b border-rule"
             >
-              <div className="space-y-0.5">
+              <a
+                href={`/transit/${letter.access_token}`}
+                className="space-y-0.5 hover:opacity-60 transition-opacity"
+              >
                 <p className="text-sm">{to}</p>
                 <p className="text-xs text-muted">{date}</p>
+              </a>
+              <div className="flex items-center gap-4">
+                <span className={`text-xs uppercase tracking-[0.15em] ${
+                  status === "Opened" ? "text-foreground" : "text-muted"
+                }`}>
+                  {status}
+                </span>
+                <a
+                  href={`/sent/${letter.access_token}`}
+                  className="text-xs underline text-muted hover:text-foreground"
+                >
+                  Read
+                </a>
               </div>
-              <span className={`text-xs uppercase tracking-[0.15em] ${
-                status === "Opened" ? "text-foreground" :
-                status === "In transit" ? "text-muted" : "text-muted"
-              }`}>
-                {status}
-              </span>
-            </a>
+            </div>
           );
         })}
       </div>

@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/service";
+import { signLetterMedia } from "@/lib/letter-media";
 import LetterReader from "@/components/LetterReader";
 
 export default async function LetterPage({
@@ -29,38 +30,7 @@ export default async function LetterPage({
       .eq("access_token", token);
   }
 
-  // Generate signed URLs for audio and images
-  let audioSignedUrl: string | null = null;
-  if (letter.audio_url) {
-    const { data } = await service.storage
-      .from("letter-audio")
-      .createSignedUrl(letter.audio_url, 3600);
-    audioSignedUrl = data?.signedUrl ?? null;
-  }
-
-  // Longer expiry so a paused video still plays when they come back to it.
-  let videoSignedUrl: string | null = null;
-  if (letter.video_url) {
-    const { data } = await service.storage
-      .from("letter-video")
-      .createSignedUrl(letter.video_url, 6 * 3600);
-    videoSignedUrl = data?.signedUrl ?? null;
-  }
-
-  const images = await Promise.all(
-    (letter.letter_images ?? [])
-      .sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order)
-      .map(async (img: { id: string; image_url: string; caption: string; display_order: number }) => {
-        const { data } = await service.storage
-          .from("letter-images")
-          .createSignedUrl(img.image_url, 3600);
-        return {
-          id: img.id,
-          signedUrl: data?.signedUrl ?? null,
-          caption: img.caption,
-        };
-      }),
-  );
+  const { audioUrl, videoUrl, images } = await signLetterMedia(service, letter);
 
   return (
     <div className="min-h-full flex flex-col">
@@ -78,8 +48,8 @@ export default async function LetterPage({
             recipient_name: letter.recipient_name,
             weather_description: letter.weather_description ?? null,
           }}
-          audioUrl={audioSignedUrl}
-          videoUrl={videoSignedUrl}
+          audioUrl={audioUrl}
+          videoUrl={videoUrl}
           images={images}
           replyToken={token}
         />
