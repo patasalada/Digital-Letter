@@ -1,9 +1,30 @@
-import { NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
+import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { sendDeliveryEmail } from "@/lib/resend";
 
-// Public on purpose: it only delivers letters already past unlock, once each.
-export async function GET() {
+// cron-job.org sends "Authorization: Bearer <CRON_SECRET>". ?key=<CRON_SECRET>
+// also works for clients that can't set headers. No secret configured = locked.
+function isAuthorized(request: NextRequest) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+
+  const header = request.headers.get("authorization");
+  const given = header?.startsWith("Bearer ")
+    ? header.slice("Bearer ".length)
+    : request.nextUrl.searchParams.get("key");
+  if (!given) return false;
+
+  const a = Buffer.from(given);
+  const b = Buffer.from(secret);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+export async function GET(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const service = createServiceClient();
 
   // Find all in-transit letters whose unlock time has passed
