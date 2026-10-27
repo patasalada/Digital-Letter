@@ -13,7 +13,9 @@ export default async function LetterPage({
 
   const { data: letter } = await service
     .from("letters")
-    .select("*, letter_images(id, image_url, caption, display_order)")
+    .select(
+      "body_text, dispatched_at, origin_label, recipient_name, weather_description, unlock_timestamp, opened_at, audio_url, video_url, letter_images(id, image_url, caption, display_order)",
+    )
     .eq("access_token", token)
     .single();
 

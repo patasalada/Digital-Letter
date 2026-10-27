@@ -8,10 +8,11 @@ export async function GET(
   const { token } = await params;
   const service = createServiceClient();
 
+  // Public: anyone with the link can call this, so never select emails or ids.
   const { data: letter, error } = await service
     .from("letters")
     .select(
-      "id, recipient_name, recipient_email, origin_label, destination_label, distance_km, dispatched_at, unlock_timestamp, delivered_at, opened_at, status, body_text, audio_url, in_reply_to, access_token",
+      "recipient_name, origin_label, destination_label, distance_km, dispatched_at, unlock_timestamp, delivered_at, opened_at, status, body_text",
     )
     .eq("access_token", token)
     .single();
@@ -30,5 +31,7 @@ export async function GET(
       .eq("access_token", token);
   }
 
-  return NextResponse.json(letter);
+  // Same rule as /letter: the body stays sealed until it arrives.
+  const { body_text, ...transit } = letter;
+  return NextResponse.json(isUnlocked ? { ...transit, body_text } : transit);
 }
